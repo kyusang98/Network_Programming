@@ -26,7 +26,7 @@ exit(1);
 }
 
 else {
-fprintf(stderr, "Socket created!\n");
+fprintf(stderr, "Command Socket created!\n");
 }
 /* retrieve the port number for connecting */
 simplePort = atoi(argv[2]);
@@ -92,14 +92,13 @@ fprintf(stderr, "Return Status = %d \n", returnStatus);
 }
 
 
-/*Calculate the Port Number*/
+/*Extract and Calculate the IP and Port Number from buffer*/
 char str[512]; //대상 문자열
 sprintf(str,"%s",buffer);
-    //str[7] = 'O';
-    //printf("%s", str);
+
 
 int i = 0;
-    // '('가 나타나면 ','로 바꿔준다.
+// '('가 나타나면 ','로 바꿔준다.
 while (1)
     {
         if (str[i] == '(')
@@ -109,7 +108,7 @@ while (1)
         }
         i++;
     }
-    // ')'가 나타나면 ','로 바꿔준다.
+// ')'가 나타나면 ','로 바꿔준다.
 
 while (1)
     {
@@ -121,21 +120,19 @@ while (1)
         i++;
     }
 
-    //printf("%s\n", str);
-
-    ////////////////////////////////////////////////////
+/*컴마를 기준으로 문자열 자르기*/
 char* context = NULL;
-char* temp = strtok_r(str, ",", &context); //컴마를 기준으로 문자열 자르기
+char* temp = strtok_r(str, ",", &context);
 int arr[6];
 
 i = 0;
-while (temp != NULL)              //ptr이 NULL일때까지 (= strtok 함수가 NULL을 반환할때까지)
+while (temp != NULL)              //tem가 NULL일때까지 (= strtok 함수가 NULL을 반환할때까지)
     {
         if (i != 0)
         {
-            //printf("%s\n", temp);  //자른 문자 출력
+
             arr[i - 1] = atoi(temp);
-            //printf("%d\n", atoi(temp));
+
         }
 
         temp = strtok_r(NULL, " ,",&context);     //자른 문자 다음부터 구분자 또 찾기
@@ -143,12 +140,6 @@ while (temp != NULL)              //ptr이 NULL일때까지 (= strtok 함수가 
         if (i == 7)
             break;
     }
-
-for (i = 0;i < 6;i++)
-   {
-        printf("%d\n",arr[i]);
-   }
-
 
 
 
@@ -158,9 +149,6 @@ printf("%s\n",data_ip);
 
 int data_port=arr[4] * 256 + arr[5];
 printf("%d\n", data_port);
-
-
-
 
 
 //new datasocket
@@ -183,7 +171,7 @@ exit(1);
 }
 
 else {
-fprintf(stderr, "Socket created!\n");
+fprintf(stderr, "Data Socket created!\n");
 }
 /* retrieve the port number for connecting */
 data_simplePort = data_port;
@@ -205,16 +193,13 @@ fprintf(stderr, "Could not connect to address!\n");
 close(data_simpleSocket);
 exit(1);
 }
-/* send the request to the server */
-//const char REQUESTMESSAGE[] = "GET / HTTP/1.1\r\nHost: 223.194.7.95\r\n\r\n";
-//write(data_simpleSocket, REQUESTMESSAGE, strlen(REQUESTMESSAGE));
 
 
 
 /* send the request to the server */
 const char REQUESTMESSAGE4[] = "RETR welcome.txt\r\n";
 write(simpleSocket, REQUESTMESSAGE4, strlen(REQUESTMESSAGE4));
-/* get the message from the server */
+/*Command Client gets the message from the server */
 returnStatus = read(simpleSocket, data_buffer, sizeof(data_buffer));
 
 if ( returnStatus > 0 ) {
@@ -225,7 +210,9 @@ fprintf(stderr, "Return Status = %d \n", returnStatus);
 }
 
 
-/* get the message from the server */
+
+
+/*Data Client gets the message from the server */
 returnStatus = read(data_simpleSocket, data_buffer, sizeof(data_buffer));
 
 if ( returnStatus > 0 ) {
@@ -236,12 +223,9 @@ fprintf(stderr, "Return Status = %d \n", returnStatus);
 }
 
 
-
-
-
 close(data_simpleSocket);
-
 close(simpleSocket);
+
 return 0;
 }
 
